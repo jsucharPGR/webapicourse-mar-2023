@@ -15,13 +15,17 @@ namespace EmployeesApi
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-<<<<<<< HEAD:EmployeesSolution/EmployeesApi/Program.cs
 
             builder.Services.AddScoped<DepartmentsLookup>();
 
-=======
-            builder.Services.AddScoped<DepartmentsLookup>();
->>>>>>> a685823a825ff9650b16a063c8fe0fe0426f92a1:instructor/EmployeesSolution/EmployeesApi/Program.cs
+            builder.Services.AddScoped<DepartmentEntity>();
+            builder.Services.AddScoped<EmployeeEntity>();
+
+            builder.Services.AddDbContext<EmployeesDataContext>(option ==> 
+                {
+                    opntions.UseSqlServer("connection string here");
+                });
+
             var app = builder.Build();
             
             // Startup Configure

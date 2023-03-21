@@ -18,11 +18,16 @@
             //200 with emp
             //other 404
 
-            if(int.Parse(employeeId) % 2 == 0)
+            if (int.Parse(employeeId) % 2 == 0)
             {
-                var response = new EmployeeResponse(employeeId, "Bob", "Smith", "DEV");
+                var contacts = new Dictionary<string, Dictionary<string, string>>() {
+                    {"home", new Dictionary<string, string> { {"email", "bob@aol.com" }, { "phone", "555-1212"} } },
+                    {"work", new Dictionary<string, string> { {"email", "bob@company.com"}, { "phone", "888-1212"} } } 
+                };
+                var response = new EmployeeResponse(employeeId, new NameInformation("Bob", "Smith"), new WorkDetails("DEV"), contacts);
                 return Ok(response);
-            } else
+            }
+            else
             {
                 return NotFound();
             }

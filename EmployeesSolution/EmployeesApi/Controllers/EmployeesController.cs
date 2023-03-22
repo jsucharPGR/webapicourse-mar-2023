@@ -1,36 +1,55 @@
-﻿namespace EmployeesApi.Controllers
+﻿
+
+namespace EmployeesApi.Controllers;
+
+public class EmployeesController : ControllerBase
 {
-    public class EmployeesController : ControllerBase
+
+    private readonly ILookupEmployees _employeeLookupService;
+
+    public EmployeesController(ILookupEmployees employeeLookupService)
     {
-        // GET /employees
+        _employeeLookupService = employeeLookupService;
+    }
 
-        [HttpGet("/employees")]
-        public async Task<ActionResult<EmployeeSummaryResponse>> GetAllEmployees([FromQuery] string dept = "All")
+    [HttpGet("/employees/{employeeId}/contact-information/home")]
+    public async Task<ActionResult<ContactItem>> GetEmployeeHomeContactInfo(string employeeId)
+    {
+        ContactItem? response = await _employeeLookupService.GetEmployeeContactInfoForHomeAsync(employeeId); 
+        
+        return response is null ? NotFound() : Ok(response);
+    }
+
+    [HttpGet("/employees/{employeeId}/contact-information/work")]
+    public async Task<ActionResult<ContactItem>> GetEmployeeWorkContactInfo(string employeeId)
+    {
+        ContactItem? response = await _employeeLookupService.GetEmployeeContactInfoForWorkAsync(employeeId);
+
+        return response is null ? NotFound() : Ok(response);
+    }
+
+    // GET /employees
+    // make URIs CASE SENSITIVE - always do them the same way.
+    [HttpGet("/employees")]
+    public async Task<ActionResult<EmployeeSummaryResponse>> GetAllEmployees([FromQuery] string dept = "All")
+    {
+        var response = new EmployeeSummaryResponse(18, 10, 8, dept);
+        return Ok(response); // 200 Ok, but serialize this .NET object to client.
+
+    }
+
+    [HttpGet("/employees/{employeeId}")]
+    public async Task<ActionResult<EmployeeResponse>> GetEmployeeById([FromRoute] string employeeId)
+    {
+        EmployeeResponse? response =await  _employeeLookupService.GetEmployeeByIdAsync(employeeId);
+        
+        if(response is null)
         {
-            var response = new EmployeeSummaryResponse(18, 10, 8, dept);
+            return NotFound();
+        } else
+        {
             return Ok(response);
-
         }
 
-        [HttpGet("/employees/{employeeId}")]
-        public async Task<ActionResult<EmployeeResponse>> GetEmployeeById([FromRoute]string employeeId)
-        {
-            //200 with emp
-            //other 404
-
-            if (int.Parse(employeeId) % 2 == 0)
-            {
-                var contacts = new Dictionary<string, Dictionary<string, string>>() {
-                    {"home", new Dictionary<string, string> { {"email", "bob@aol.com" }, { "phone", "555-1212"} } },
-                    {"work", new Dictionary<string, string> { {"email", "bob@company.com"}, { "phone", "888-1212"} } } 
-                };
-                var response = new EmployeeResponse(employeeId, new NameInformation("Bob", "Smith"), new WorkDetails("DEV"), contacts);
-                return Ok(response);
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
     }
 }
